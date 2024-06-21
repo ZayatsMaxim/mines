@@ -1,13 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&display=swap');
-@import "primeng/resources/themes/lara-light-blue/theme.css";
-@import "primeng/resources/primeng.css";
 
 * {
-  font-family: 'Josefin Sans', 'Courier New', Courier, monospace;
+  font-family: 'Josefin Sans','Courier New', Courier, monospace;
 }
 
 .title {
-  margin-top: 70px;
+  margin-top: 100px;
   display: flex;
   flex-flow: column;
   align-items: center;
@@ -17,16 +15,9 @@
     margin: 0;
     font-size: 48px;
   }
-
+  
   h2 {
     margin: 0;
     font-size: 32px;
   }
-}
-
-.settings {
-  margin-top: 30px;
-  display: flex;
-  flex-flow: column;
-  align-items: center;
 }
