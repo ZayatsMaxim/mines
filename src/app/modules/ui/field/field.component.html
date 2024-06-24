@@ -1,2 +1,7 @@
-<div>
+<div class="field" [style.width.px]="fieldWidth()">
+  @for (i of [].constructor(size()); track $index) {
+    @for (y of [].constructor(size()); track $index) {
+      <app-cell [content]="0"></app-cell>
+    }
+  }
 </div>

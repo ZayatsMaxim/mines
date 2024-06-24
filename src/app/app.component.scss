@@ -1,13 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&display=swap');
-@import "primeng/resources/themes/lara-light-blue/theme.css";
-@import "primeng/resources/primeng.css";
 
 * {
   font-family: 'Josefin Sans', 'Courier New', Courier, monospace;
 }
 
 .title {
-  margin-top: 70px;
+  margin-top: 30px;
   display: flex;
   flex-flow: column;
   align-items: center;
@@ -17,14 +15,31 @@
     margin: 0;
     font-size: 48px;
   }
-
-  h2 {
-    margin: 0;
-    font-size: 32px;
-  }
 }
 
 .settings {
+  h2 {
+    margin-bottom: 30px;
+  }
+
+  margin-top: 10px;
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+
+  .inputs {
+    display: flex;
+    flex-flow: row;
+    gap: 20px;
+    align-items: center;
+  }
+
+  ::ng-deep .input-small input {
+    width: 130px !important;
+  }
+}
+
+.field {
   margin-top: 30px;
   display: flex;
   flex-flow: column;

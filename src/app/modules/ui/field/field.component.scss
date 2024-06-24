@@ -1,3 +1,10 @@
 :host {
   display: block;
 }
+
+.field {
+  display: flex;
+  flex-flow: row;
+  flex-wrap: wrap;
+  gap: 2px;
+}

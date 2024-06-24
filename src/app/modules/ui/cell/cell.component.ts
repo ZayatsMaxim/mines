@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, input } from '@angular/core';
 
 @Component({
   selector: 'app-cell',
@@ -8,4 +8,6 @@ import { Component } from '@angular/core';
   templateUrl: './cell.component.html',
   styleUrl: './cell.component.scss',
 })
-export class CellComponent {}
+export class CellComponent {
+  content = input.required<number>();
+}

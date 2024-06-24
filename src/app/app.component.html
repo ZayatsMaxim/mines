@@ -1,13 +1,39 @@
 <div class="title">
   <h1>Minesweeper by Zayats💣</h1>
-  <h2>Enjoy💥</h2>
 </div>
 
 <div class="settings">
   <h2>Settings</h2>
-  <div class="buttons">
-    <p-inputNumber [showButtons]="true"> </p-inputNumber>
+  <div class="inputs">
+    <p-floatLabel>
+      <p-inputNumber
+        id="minesAmount"
+        [showButtons]="true"
+        [min]="1"
+        [max]="maxMines()"
+        styleClass="input-small"
+        [(ngModel)]="minesAmount"
+        [disabled]="started">
+      </p-inputNumber>
+      <label for="minesAmount">Mines amount</label>
+    </p-floatLabel>
+
+    <p-floatLabel>
+      <p-inputNumber
+        id="fieldSize"
+        [showButtons]="true"
+        [min]="4"
+        [max]="32"
+        styleClass="input-small"
+        [(ngModel)]="fieldSize"
+        [disabled]="started">
+      </p-inputNumber>
+      <label for="fieldSize">Field Size</label>
+    </p-floatLabel>
+    <p-button label="Play!" (onClick)="onPlay()" />
   </div>
 </div>
 
-<app-field [size]="6" [maxMines]="3"></app-field>
+<div class="field">
+  <app-field [size]="fieldSize()" [minesAmount]="minesAmount()"></app-field>
+</div>
