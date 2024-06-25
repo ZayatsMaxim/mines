@@ -1,7 +1,7 @@
 <div class="field" [style.width.px]="fieldWidth()">
-  @for (i of [].constructor(size()); track $index) {
-    @for (y of [].constructor(size()); track $index) {
-      <app-cell [content]="0"></app-cell>
-    }
-  }
+  <ng-container *ngFor="let i of minesAroundNumbers; let ix = index">
+    <ng-container *ngFor="let j of i; let jx = index">
+      <app-cell [content]="this.minesAroundNumbers[ix][jx]" [posX]="ix" [posY]="jx" (cellReveal)="cellReveal($event)"></app-cell>
+    </ng-container>
+  </ng-container>
 </div>

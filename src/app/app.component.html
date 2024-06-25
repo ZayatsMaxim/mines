@@ -13,7 +13,7 @@
         [max]="maxMines()"
         styleClass="input-small"
         [(ngModel)]="minesAmount"
-        [disabled]="started">
+        [disabled]="gameStateService.gameStarted">
       </p-inputNumber>
       <label for="minesAmount">Mines amount</label>
     </p-floatLabel>
@@ -26,7 +26,7 @@
         [max]="32"
         styleClass="input-small"
         [(ngModel)]="fieldSize"
-        [disabled]="started">
+        [disabled]="gameStateService.gameStarted">
       </p-inputNumber>
       <label for="fieldSize">Field Size</label>
     </p-floatLabel>

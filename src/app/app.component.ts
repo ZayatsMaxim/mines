@@ -6,7 +6,7 @@ import { PrimeNGConfig } from 'primeng/api';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { ButtonModule } from 'primeng/button';
 import { FormsModule } from '@angular/forms';
-
+import { GameStateService } from './modules/services/game-state.service';
 
 @Component({
   selector: 'app-root',
@@ -30,16 +30,17 @@ export class AppComponent implements OnInit {
     Math.floor((this.fieldSize() * this.fieldSize()) / 2)
   );
 
-  started = false;
-
-  constructor(private primengConfig: PrimeNGConfig) {}
+  constructor(
+    private primengConfig: PrimeNGConfig,
+    public gameStateService: GameStateService
+  ) {}
 
   ngOnInit() {
     this.primengConfig.ripple = true;
   }
 
   onPlay() {
-    this.started = true;
+    this.gameStateService.startGame();
   }
 
   title = 'mines';

@@ -1,1 +1,22 @@
-<div class="cell"></div>
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<div
+  class="cell"
+  (click)="handleLeftClick()"
+  (contextmenu)="handleRightClick($event)"
+  [ngClass]="{ revealed: revealed }">
+
+  @if (flagged && !revealed) {
+    <span class="pi pi-flag-fill flag"></span>
+  }
+
+  @if (revealed && this.content()===-1) {
+    <p>💣</p>
+  }
+
+  @if (revealed && this.content()!==0 && this.content()!==-1) {
+    <p>
+      {{ this.content() }}
+    </p>
+  }
+</div>
