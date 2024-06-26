@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, effect, input } from '@angular/core';
+import { Component, computed, effect, input, output } from '@angular/core';
 import { CellComponent, CellCoordinates } from '../cell/cell.component';
 
 @Component({
@@ -14,6 +14,8 @@ export class FieldComponent {
   minesAmount = input.required<number>();
 
   fieldWidth = computed(() => this.size() * 50 + (this.size() - 1) * 2);
+
+  revealCell = output<void>();
 
   mines: number[][] = [];
   minesAroundNumbers: number[][] = [];
@@ -32,8 +34,6 @@ export class FieldComponent {
   });
 
   cellReveal(event: CellCoordinates) {
-    console.log(this.firstClick());
-
     if (this.firstClick()) {
       do {
         this.setMines();
@@ -42,6 +42,8 @@ export class FieldComponent {
     }
 
     this.revealedCells[event.posX][event.posY] = 1;
+    
+    //TODO: auto cell reveal
   }
 
   setMines() {
