@@ -12,8 +12,8 @@
         [min]="1"
         [max]="maxMines()"
         styleClass="input-small"
-        [(ngModel)]="minesAmount"
-        [disabled]="gameStateService.gameStarted">
+        [(ngModel)]="this.gameStateService.minesAmount"
+        [disabled]="this.controlsDisabled()">
       </p-inputNumber>
       <label for="minesAmount">Mines amount</label>
     </p-floatLabel>
@@ -25,15 +25,26 @@
         [min]="4"
         [max]="32"
         styleClass="input-small"
-        [(ngModel)]="fieldSize"
-        [disabled]="gameStateService.gameStarted">
+        [(ngModel)]="this.gameStateService.size"
+        [disabled]="this.controlsDisabled()">
       </p-inputNumber>
       <label for="fieldSize">Field Size</label>
     </p-floatLabel>
+
     <p-button label="Play!" (onClick)="onPlay()" />
   </div>
 </div>
 
-<div class="field">
-  <app-field [size]="fieldSize()" [minesAmount]="minesAmount()"></app-field>
+<div class="stats">
+  <p>Flags remain: {{ gameStateService.flagsRemain() }}</p>
+  <p>Games won: {{ gameStateService.gamesWonAmount() }}</p>
+  <p>Total games: {{ gameStateService.restartSignal() }}</p>
 </div>
+
+<div class="field">
+  <app-field></app-field>
+</div>
+
+<p-toast key="minesAmountError" position="bottom-center">
+  
+</p-toast>

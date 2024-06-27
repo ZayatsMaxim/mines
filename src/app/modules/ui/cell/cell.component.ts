@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, input, output } from '@angular/core';
-import { GameStateService } from '../../services/game-state.service';
+import { GameState, GameStateService } from '../../services/game-state.service';
 
 export interface CellCoordinates {
   posX: number;
@@ -20,6 +20,7 @@ export class CellComponent {
   posY = input<number>();
 
   cellReveal = output<CellCoordinates>();
+  cellFlaging = output<CellCoordinates>();
 
   revealed: boolean = false;
   flagged: boolean = false;
@@ -27,15 +28,31 @@ export class CellComponent {
   constructor(private gameStateService: GameStateService) {}
 
   handleLeftClick() {
-    if (!this.gameStateService.gameStarted || this.flagged) return;
+    if (this.gameStateService.gameState() !== GameState.Started || this.flagged)
+      return;
+    if (this.content() === -1) this.gameStateService.endGame();
     this.cellReveal.emit({ posX: this.posX()!, posY: this.posY()! });
-    this.revealed = true;
-    // TODO: reveal nearest cells on click!
   }
 
   handleRightClick(event: Event) {
-    if (!this.gameStateService.gameStarted) return;
     event.preventDefault();
+    if (this.gameStateService.gameState() !== GameState.Started) return;
+    if (this.gameStateService.flagsRemain() === 0 && !this.flagged) return;
+    if (this.revealed) return;
+
     this.flagged = !this.flagged;
+    this.flagged
+      ? this.gameStateService.cellsFlaged.update(value => value + 1)
+      : this.gameStateService.cellsFlaged.update(value => value - 1);
+    this.cellFlaging.emit({ posX: this.posX()!, posY: this.posY()! });
+  }
+
+  revealSelf() {
+    this.revealed = true;
+  }
+
+  hideSelf() {
+    this.revealed = false;
+    this.flagged = false;
   }
 }
