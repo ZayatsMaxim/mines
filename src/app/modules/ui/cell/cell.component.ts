@@ -16,8 +16,8 @@ export interface CellCoordinates {
 })
 export class CellComponent {
   content = input<number>();
-  posX = input<number>();
-  posY = input<number>();
+  posX = input.required<number>();
+  posY = input.required<number>();
 
   cellReveal = output<CellCoordinates>();
   cellFlaging = output<CellCoordinates>();
@@ -49,6 +49,7 @@ export class CellComponent {
 
   revealSelf() {
     this.revealed = true;
+    if (this.content() === -1) this.gameStateService.endGame();
   }
 
   hideSelf() {

@@ -54,8 +54,12 @@ export class FieldComponent {
   constructor(private gameStateService: GameStateService) {}
 
   cellReveal(event: CellCoordinates) {
+    const clickedCell = this.getCellByPosition(event.posX, event.posY);
+
+    if (clickedCell === undefined) return;
+
     if (this.firstClick()) {
-      this.setMines(event.posX, event.posY);
+      this.setMines(clickedCell.posX(), clickedCell.posY());
       this.setMinesAroundNumbers();
     }
 
@@ -64,9 +68,25 @@ export class FieldComponent {
       return;
     }
 
-    if (!this.cells.get(event.posX * this.size() + event.posY)?.revealed) {
-      this.cells.get(event.posX * this.size() + event.posY)?.revealSelf();
-      this.revealNearCells(event.posX, event.posY);
+    if (!clickedCell.revealed) {
+      clickedCell.revealSelf();
+      this.revealCellsAround(clickedCell.posX(), clickedCell.posY());
+    } else if (clickedCell?.content() !== 0) {
+      const cellsAround = this.selectCellsAround(
+        clickedCell.posX(),
+        clickedCell.posY()
+      );
+
+      const flagsAround = cellsAround.reduce(
+        (count, cell) => count + (cell!.flagged ? 1 : 0),
+        0
+      );
+
+      if (flagsAround === clickedCell.content()) {
+        cellsAround
+          .filter(cell => !cell.flagged)
+          .forEach(cell => this.revealCellsAround(cell.posX(), cell.posY()));
+      }
     }
   }
 
@@ -95,7 +115,7 @@ export class FieldComponent {
   setMinesAroundNumbers() {
     for (let i = 0; i < this.size(); i++) {
       for (let j = 0; j < this.size(); j++) {
-        this.minesAroundNumbers[i][j] = this.calculateNearMines(i, j);
+        this.minesAroundNumbers[i][j] = this.calculateMinesAround(i, j);
       }
     }
 
@@ -108,7 +128,7 @@ export class FieldComponent {
     }
   }
 
-  calculateNearMines(x: number, y: number): number {
+  calculateMinesAround(x: number, y: number): number {
     if (this.outOfBounds(x, y)) return 0;
 
     let i: number = 0;
@@ -122,7 +142,7 @@ export class FieldComponent {
 
     return i;
   }
-  
+
   outOfBounds(x: number, y: number): boolean {
     return x < 0 || y < 0 || x >= this.size() || y >= this.size();
   }
@@ -133,27 +153,34 @@ export class FieldComponent {
     );
   }
 
-  revealNearCells(x: number, y: number) {
+  revealCellsAround(x: number, y: number) {
+    const cell = this.getCellByPosition(x, y);
+
+    if (cell?.content() === -1) {
+      this.revealBombs();
+      return;
+    }
+
     if (this.outOfBounds(x, y)) return;
 
     if (this.revealedCells[x][y]) return;
 
-    if (this.cells.get(x * this.size() + y)?.flagged) return;
+    if (cell?.flagged) return;
 
     this.revealedCells[x][y] = true;
 
-    this.cells.get(x * this.size() + y)?.revealSelf();
+    cell?.revealSelf();
 
-    if (this.calculateNearMines(x, y) !== 0) return;
+    if (this.calculateMinesAround(x, y) !== 0) return;
 
-    this.revealNearCells(x - 1, y - 1);
-    this.revealNearCells(x - 1, y + 1);
-    this.revealNearCells(x + 1, y - 1);
-    this.revealNearCells(x + 1, y + 1);
-    this.revealNearCells(x - 1, y);
-    this.revealNearCells(x + 1, y);
-    this.revealNearCells(x, y + 1);
-    this.revealNearCells(x, y - 1);
+    this.revealCellsAround(x - 1, y - 1);
+    this.revealCellsAround(x - 1, y + 1);
+    this.revealCellsAround(x + 1, y - 1);
+    this.revealCellsAround(x + 1, y + 1);
+    this.revealCellsAround(x - 1, y);
+    this.revealCellsAround(x + 1, y);
+    this.revealCellsAround(x, y + 1);
+    this.revealCellsAround(x, y - 1);
   }
 
   revealBombs() {
@@ -208,5 +235,26 @@ export class FieldComponent {
     }
 
     return true;
+  }
+
+  selectCellsAround(x: number, y: number) {
+    const cells = [
+      this.getCellByPosition(x - 1, y - 1),
+      this.getCellByPosition(x - 1, y + 1),
+      this.getCellByPosition(x + 1, y - 1),
+      this.getCellByPosition(x + 1, y + 1),
+      this.getCellByPosition(x - 1, y),
+      this.getCellByPosition(x + 1, y),
+      this.getCellByPosition(x, y + 1),
+      this.getCellByPosition(x, y - 1),
+    ].filter((cell): cell is CellComponent => cell !== undefined);
+
+    return cells;
+  }
+
+  getCellByPosition(x: number, y: number) {
+    if (this.outOfBounds(x, y)) return undefined;
+
+    return this.cells.get(x * this.size() + y);
   }
 }
