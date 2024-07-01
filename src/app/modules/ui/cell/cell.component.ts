@@ -24,6 +24,7 @@ export class CellComponent {
 
   revealed: boolean = false;
   flagged: boolean = false;
+  questionned: boolean = false;
 
   constructor(private gameStateService: GameStateService) {}
 
@@ -40,11 +41,22 @@ export class CellComponent {
     if (this.gameStateService.flagsRemain() === 0 && !this.flagged) return;
     if (this.revealed) return;
 
-    this.flagged = !this.flagged;
-    this.flagged
-      ? this.gameStateService.cellsFlaged.update(value => value + 1)
-      : this.gameStateService.cellsFlaged.update(value => value - 1);
-    this.cellFlaging.emit({ posX: this.posX()!, posY: this.posY()! });
+    if (this.flagged) {
+      this.questionned = true;
+      this.gameStateService.cellsFlaged.update(value => value - 1);
+      this.flagged = false;
+      this.cellFlaging.emit({ posX: this.posX()!, posY: this.posY()! });
+      return;
+    } else {
+      if (this.questionned) {
+        this.questionned = false;
+        return;
+      } else {
+        this.flagged = true;
+        this.gameStateService.cellsFlaged.update(value => value + 1);
+        this.cellFlaging.emit({ posX: this.posX()!, posY: this.posY()! });
+      }
+    }
   }
 
   revealSelf() {
@@ -55,5 +67,6 @@ export class CellComponent {
   hideSelf() {
     this.revealed = false;
     this.flagged = false;
+    this.questionned = false;
   }
 }

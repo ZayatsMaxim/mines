@@ -9,7 +9,7 @@
       <p-inputNumber
         id="minesAmount"
         [showButtons]="true"
-        [min]="1"
+        [min]="consts.MIN_MINES_AMOUNT"
         [max]="maxMines()"
         styleClass="input-small"
         [(ngModel)]="this.gameStateService.minesAmount"
@@ -22,8 +22,8 @@
       <p-inputNumber
         id="fieldSize"
         [showButtons]="true"
-        [min]="4"
-        [max]="32"
+        [min]="consts.MIN_SIZE"
+        [max]="consts.MAX_SIZE"
         styleClass="input-small"
         [(ngModel)]="this.gameStateService.size"
         [disabled]="this.controlsDisabled()">
@@ -41,10 +41,12 @@
   <p>Total games: {{ gameStateService.restartSignal() }}</p>
 </div>
 
+<div class="timer">
+  <cd-timer #timer maxTimeUnit="minute" format="ms"></cd-timer>
+</div>
+
 <div class="field">
   <app-field></app-field>
 </div>
 
-<p-toast key="minesAmountError" position="bottom-center">
-  
-</p-toast>
+<p-toast key="minesAmountError" position="bottom-center"> </p-toast>

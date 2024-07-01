@@ -19,4 +19,8 @@
       {{ this.content() }}
     </p>
   }
+
+  @if (questionned && !revealed) {
+    <span class="questionMark">?</span>
+  }
 </div>

@@ -1,4 +1,5 @@
 import { computed, Injectable, signal } from '@angular/core';
+import { CONSTANTS } from '../consts/game-state.consts';
 
 export enum GameState {
   Paused,
@@ -15,8 +16,8 @@ export class GameStateService {
 
   restartSignal = signal<number>(0);
   gamesWonAmount = signal<number>(0);
-  size = signal<number>(4);
-  minesAmount = signal<number>(2);
+  size = signal<number>(CONSTANTS.MIN_SIZE);
+  minesAmount = signal<number>(CONSTANTS.MIN_MINES_AMOUNT);
   cellsFlaged = signal<number>(0);
 
   flagsRemain = computed(() => this.minesAmount() - this.cellsFlaged());

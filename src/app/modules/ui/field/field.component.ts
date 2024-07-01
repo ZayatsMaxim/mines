@@ -17,8 +17,6 @@ import { GameState, GameStateService } from '../../services/game-state.service';
   styleUrl: './field.component.scss',
 })
 export class FieldComponent {
-  // size = input.required<number>();
-  // minesAmount = input.required<number>();
   size = this.gameStateService.size;
   minesAmount = this.gameStateService.minesAmount;
 

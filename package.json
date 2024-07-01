@@ -19,6 +19,7 @@
     "@angular/platform-browser": "^18.0.4",
     "@angular/platform-browser-dynamic": "^18.0.4",
     "@angular/router": "^18.0.4",
+    "angular-cd-timer": "^3.0.0",
     "canvas-confetti": "^1.9.3",
     "primeicons": "^7.0.0",
     "primeng": "^17.18.1",

@@ -1,4 +1,4 @@
-import { Component, computed, effect, OnInit } from '@angular/core';
+import { Component, computed, effect, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { FieldComponent } from './modules/ui/field/field.component';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -11,11 +11,10 @@ import {
   GameStateService,
 } from './modules/services/game-state.service';
 import { ToastModule } from 'primeng/toast';
-import { MessagesModule } from 'primeng/messages';
-import { MessageModule } from 'primeng/message';
-import { MessageService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
 import confetti from 'canvas-confetti';
+import { CONSTANTS } from './modules/consts/game-state.consts';
+import { CdTimerComponent, CdTimerModule } from 'angular-cd-timer';
 
 @Component({
   selector: 'app-root',
@@ -29,13 +28,16 @@ import confetti from 'canvas-confetti';
     ButtonModule,
     FormsModule,
     ToastModule,
-    MessagesModule,
-    MessageModule,
+    CdTimerModule,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, AfterViewInit {
+  readonly consts = CONSTANTS;
+
+  @ViewChild('timer') timer!: CdTimerComponent;
+
   maxMines = computed(() =>
     Math.floor(
       (this.gameStateService.size() * this.gameStateService.size()) / 2
@@ -46,8 +48,16 @@ export class AppComponent implements OnInit {
     () => this.gameStateService.gameState() === GameState.Started
   );
 
+  onGameLose = effect(() => {
+    if (this.gameStateService.gameState() === GameState.Lose) {
+      this.timer.stop();
+    }
+  })
+
   onGameWin = effect(() => {
     if (this.gameStateService.gameState() === GameState.Win) {
+      this.timer.stop();
+
       const duration = 10000; // in milliseconds
 
       confetti({
@@ -77,19 +87,25 @@ export class AppComponent implements OnInit {
 
   constructor(
     private primengConfig: PrimeNGConfig,
-    public gameStateService: GameStateService,
-    private messageService: MessageService
+    public gameStateService: GameStateService
   ) {}
 
   ngOnInit() {
     this.primengConfig.ripple = true;
   }
 
+  ngAfterViewInit(): void {
+    this.timer.stop();
+  }
+
   onPlay() {
     if (this.gameStateService.minesAmount() <= this.maxMines()) {
       this.gameStateService.startGame();
+      this.timer.start();
     } else {
-      window.alert('Check mines amount! Max amount in 50% of total cells amount')
+      window.alert(
+        'Check mines amount! Max amount in 50% of total cells amount'
+      );
     }
   }
 
