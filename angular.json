@@ -23,6 +23,7 @@
             "polyfills": [
               "zone.js"
             ],
+            "aot": true,
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [

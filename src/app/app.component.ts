@@ -1,4 +1,12 @@
-import { Component, computed, effect, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  OnInit,
+  ViewChild,
+  AfterViewInit,
+  ElementRef,
+} from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { FieldComponent } from './modules/ui/field/field.component';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -10,7 +18,6 @@ import {
   GameState,
   GameStateService,
 } from './modules/services/game-state.service';
-import { ToastModule } from 'primeng/toast';
 import { CommonModule } from '@angular/common';
 import confetti from 'canvas-confetti';
 import { CONSTANTS } from './modules/consts/game-state.consts';
@@ -27,7 +34,6 @@ import { CdTimerComponent, CdTimerModule } from 'angular-cd-timer';
     FloatLabelModule,
     ButtonModule,
     FormsModule,
-    ToastModule,
     CdTimerModule,
   ],
   templateUrl: './app.component.html',
@@ -37,6 +43,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   readonly consts = CONSTANTS;
 
   @ViewChild('timer') timer!: CdTimerComponent;
+  @ViewChild('audio') audio!: ElementRef;
 
   maxMines = computed(() =>
     Math.floor(
@@ -52,11 +59,13 @@ export class AppComponent implements OnInit, AfterViewInit {
     if (this.gameStateService.gameState() === GameState.Lose) {
       this.timer.stop();
     }
-  })
+  });
 
   onGameWin = effect(() => {
     if (this.gameStateService.gameState() === GameState.Win) {
       this.timer.stop();
+
+      this.audio.nativeElement.play();
 
       const duration = 10000; // in milliseconds
 
