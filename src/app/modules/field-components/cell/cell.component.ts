@@ -46,11 +46,9 @@ export class CellComponent {
       this.gameStateService.cellsFlaged.update(value => value - 1);
       this.flagged = false;
       this.cellFlaging.emit({ posX: this.posX()!, posY: this.posY()! });
-      return;
     } else {
       if (this.questionned) {
         this.questionned = false;
-        return;
       } else {
         this.flagged = true;
         this.gameStateService.cellsFlaged.update(value => value + 1);

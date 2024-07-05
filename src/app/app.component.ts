@@ -8,7 +8,7 @@ import {
   ElementRef,
 } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { FieldComponent } from './modules/ui/field/field.component';
+import { FieldComponent } from './modules/field-components/field/field.component';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { PrimeNGConfig } from 'primeng/api';
 import { FloatLabelModule } from 'primeng/floatlabel';
