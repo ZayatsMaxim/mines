@@ -1,8 +1,8 @@
 <div class="field" [style.width.px]="fieldWidth()">
-  @for (i of minesAroundNumbers; track ix; let ix = $index) {
+  @for (i of numbersAroundMines; track ix; let ix = $index) {
     @for (j of i; track jx; let jx = $index) {
       <app-cell
-        [content]="this.minesAroundNumbers[ix][jx]"
+        [content]="this.numbersAroundMines[ix][jx]"
         [posX]="ix"
         [posY]="jx"
         (cellReveal)="cellReveal($event)"

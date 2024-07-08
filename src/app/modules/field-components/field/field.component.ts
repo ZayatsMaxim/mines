@@ -25,7 +25,7 @@ export class FieldComponent {
   revealCell = output<void>();
 
   mines: number[][] = [];
-  minesAroundNumbers: number[][] = [];
+  numbersAroundMines: number[][] = [];
   revealedCells: boolean[][] = [];
   flagedCells: boolean[][] = [];
 
@@ -33,19 +33,20 @@ export class FieldComponent {
 
   refreshField = effect(() => {
     this.mines = new Array(this.size());
-    this.minesAroundNumbers = new Array(this.size());
+    this.numbersAroundMines = new Array(this.size());
     this.revealedCells = new Array(this.size());
     this.flagedCells = new Array(this.size());
 
     for (let i = 0; i < this.size(); i++) {
       this.mines[i] = new Array(this.size()).fill(0);
-      this.minesAroundNumbers[i] = new Array(this.size()).fill(0);
+      this.numbersAroundMines[i] = new Array(this.size()).fill(0);
       this.revealedCells[i] = new Array(this.size()).fill(false);
       this.flagedCells[i] = new Array(this.size()).fill(false);
     }
 
     this.minesAmount();
     this.gameStateService.restartSignal();
+
     this.cells.forEach(cell => cell.hideSelf());
   });
 
@@ -58,7 +59,7 @@ export class FieldComponent {
 
     if (this.firstClick()) {
       this.setMines(clickedCell.posX(), clickedCell.posY());
-      this.setMinesAroundNumbers();
+      this.setNumbersAroundMines();
     }
 
     if (this.gameStateService.gameState() === GameState.Lose) {
@@ -110,17 +111,17 @@ export class FieldComponent {
     }
   }
 
-  setMinesAroundNumbers() {
+  setNumbersAroundMines() {
     for (let i = 0; i < this.size(); i++) {
       for (let j = 0; j < this.size(); j++) {
-        this.minesAroundNumbers[i][j] = this.calculateMinesAround(i, j);
+        this.numbersAroundMines[i][j] = this.calculateMinesAround(i, j);
       }
     }
 
     for (let i = 0; i < this.size(); i++) {
       for (let j = 0; j < this.size(); j++) {
         if (this.mines[i][j] === 1) {
-          this.minesAroundNumbers[i][j] = -1;
+          this.numbersAroundMines[i][j] = -1;
         }
       }
     }
@@ -253,6 +254,6 @@ export class FieldComponent {
   getCellByPosition(x: number, y: number) {
     if (this.outOfBounds(x, y)) return undefined;
 
-    return this.cells.get(x * this.size() + y);
+    return this.cells?.get(x * this.size() + y);
   }
 }
