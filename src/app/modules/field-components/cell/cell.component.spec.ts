@@ -1,4 +1,3 @@
-/* eslint-disable prefer-const */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CellComponent } from '../cell/cell.component';
 import { GameState, GameStateService } from '../../services/game-state.service';

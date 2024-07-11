@@ -218,13 +218,6 @@ export class FieldComponent {
   }
 
   allMinesAreFlaged(): boolean {
-    if (
-      this.flagedCells.length !== this.mines.length ||
-      !this.flagedCells.every(row => row.length === this.mines[0].length)
-    ) {
-      return false;
-    }
-
     for (let i = 0; i < this.flagedCells.length; i++) {
       for (let j = 0; j < this.flagedCells[i].length; j++) {
         if (this.flagedCells[i][j] !== (this.mines[i][j] === 1)) {

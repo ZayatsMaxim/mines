@@ -2,23 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FieldComponent } from './field.component';
 import { CellComponent, CellCoordinates } from '../cell/cell.component';
 import { GameState, GameStateService } from '../../services/game-state.service';
-import { Component, input } from '@angular/core';
 import { MockBuilder } from 'ng-mocks';
-
-@Component({
-  selector: 'app-cell',
-  template: '',
-  providers: [
-    {
-      provide: CellComponent,
-      useClass: CellStubComponent,
-    },
-  ],
-})
-export class CellStubComponent {
-  posX = input.required<number>();
-  posY = input.required<number>();
-}
 
 describe('FieldComponent', () => {
   let component: FieldComponent;
@@ -36,6 +20,8 @@ describe('FieldComponent', () => {
 
     component.minesAmount.set(2);
     component.size.set(4);
+
+    gameStateService.gameState.set(GameState.Started);
 
     fixture.detectChanges();
 
@@ -77,17 +63,120 @@ describe('FieldComponent', () => {
     expect(returnValue).toBe(void 0);
   });
 
-  // it('should set mines and numbers around them on cellReveal() on first click (left)', () => {
-  //   const cellCoordinates: CellCoordinates = { posX: 1, posY: 1 };
-  //   component.minesAmount.set(2);
-  //   gameStateService.gameState.set(GameState.Started);
+  it('should set mines and numbers around them on cellReveal() on first click (left)', () => {
+    const cellCoordinates: CellCoordinates = { posX: 1, posY: 1 };
+    spyOn(component, 'setMines');
+    spyOn(component, 'setNumbersAroundMines');
 
-  //   component.cellReveal(cellCoordinates);
-  //   fixture.detectChanges();
+    fixture.detectChanges();
 
-  //   spyOn(component, 'setMines');
+    component.cellReveal(cellCoordinates);
 
-  //   expect(component.firstClick()).toBeTrue();
-  //   expect(component.setMines).toHaveBeenCalled();
-  // });
+    expect(component.setMines).toHaveBeenCalled();
+    expect(component.setNumbersAroundMines).toHaveBeenCalled();
+  });
+
+  it('should reveal bombs on cellReveal() if game state is LOSE', () => {
+    const cellCoordinates: CellCoordinates = { posX: 1, posY: 1 };
+    gameStateService.gameState.set(GameState.Lose);
+    spyOn(component, 'revealBombs');
+
+    fixture.detectChanges();
+
+    component.cellReveal(cellCoordinates);
+
+    expect(component.revealBombs).toHaveBeenCalled();
+  });
+
+  it('should flag cell on cellFlagging()', () => {
+    const cellCoordinates: CellCoordinates = { posX: 1, posY: 1 };
+
+    component.cellFlaging(cellCoordinates);
+
+    expect(
+      component.flagedCells[cellCoordinates.posX][cellCoordinates.posY]
+    ).toBeTrue();
+  });
+
+  it('should reveal cells with bombs on revealBombs()', () => {
+    const spies: { spy: jasmine.Spy<() => void> }[] = [];
+    const cellCoordinates: CellCoordinates = { posX: 1, posY: 1 };
+    fixture.detectChanges();
+    component.cellReveal(cellCoordinates);
+    fixture.detectChanges();
+
+    component.cells
+      .filter(cell => cell.content() === -1 && !cell.flagged)
+      .forEach(cell =>
+        spies.push({
+          spy: spyOn(cell, 'revealSelf'),
+        })
+      );
+
+    component.revealBombs();
+
+    spies.forEach(s => {
+      expect(s.spy).toHaveBeenCalled();
+    });
+  });
+
+  it('should reveal empty cells on revealCellsOnWin()', () => {
+    const spies: { spy: jasmine.Spy<() => void> }[] = [];
+    const cellCoordinates: CellCoordinates = { posX: 1, posY: 1 };
+    fixture.detectChanges();
+    component.cellReveal(cellCoordinates);
+    fixture.detectChanges();
+
+    component.cells
+      .filter(cell => cell.content() !== -1 && !cell.flagged)
+      .forEach(cell =>
+        spies.push({
+          spy: spyOn(cell, 'revealSelf'),
+        })
+      );
+
+    component.revealCellsOnWin();
+
+    spies.forEach(s => {
+      expect(s.spy).toHaveBeenCalled();
+    });
+  });
+
+  it('should throw error on generateRandomNumberExcluding() if min value is greater that max', () => {
+    expect(function () {
+      component.generateRandomNumberExcluding(6, 2, 4);
+    }).toThrowError();
+  });
+
+  it('should throw error on generateRandomNumberExcluding() if excluded number is within the range', () => {
+    expect(function () {
+      component.generateRandomNumberExcluding(1, 3, 5);
+    }).toThrowError();
+  });
+
+  it('should return false on allMinesAreFlagged() if no cell was flagged', () => {
+    const cellCoordinates: CellCoordinates = { posX: 1, posY: 1 };
+    fixture.detectChanges();
+    component.cellReveal(cellCoordinates);
+
+    expect(component.allMinesAreFlaged()).toBeFalse();
+  });
+
+  it('should return true on allMinesAreFlagged() if all mines were flagged', () => {
+    const cellCoordinates: CellCoordinates = { posX: 1, posY: 1 };
+    fixture.detectChanges();
+    component.cellReveal(cellCoordinates);
+    fixture.detectChanges();
+
+    component.cells
+      .filter(cell => cell.content() === -1)
+      .forEach(cell => {
+        cell.flagged = true;
+        component.cellFlaging({ posX: cell.posX(), posY: cell.posY() });
+      });
+
+    fixture.detectChanges();
+    expect(component.allMinesAreFlaged()).toBeTrue();
+  });
+  // it('',() => {})
 });
