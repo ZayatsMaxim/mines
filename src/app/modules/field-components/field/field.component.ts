@@ -1,6 +1,5 @@
 import {
   Component,
-  computed,
   effect,
   output,
   QueryList,
@@ -19,8 +18,6 @@ import { GameState, GameStateService } from '../../services/game-state.service';
 export class FieldComponent {
   size = this.gameStateService.size;
   minesAmount = this.gameStateService.minesAmount;
-
-  fieldWidth = computed(() => this.size() * 50 + (this.size() - 1) * 2);
 
   revealCell = output<void>();
 
@@ -52,13 +49,13 @@ export class FieldComponent {
 
   constructor(private gameStateService: GameStateService) {}
 
-  cellReveal(event: CellCoordinates) {
-    const clickedCell = this.getCellByPosition(event.posX, event.posY);
+  cellReveal(cellCoordinates: CellCoordinates) {
+    const clickedCell = this.getCellByPosition(cellCoordinates);
 
     if (clickedCell === undefined) return;
 
     if (this.firstClick()) {
-      this.setMines(clickedCell.posX(), clickedCell.posY());
+      this.setMines(clickedCell.coords);
       this.setNumbersAroundMines();
     }
 
@@ -69,12 +66,9 @@ export class FieldComponent {
 
     if (!clickedCell.revealed) {
       clickedCell.revealSelf();
-      this.revealCellsAround(clickedCell.posX(), clickedCell.posY());
+      this.revealCellsAround(clickedCell.coords);
     } else if (clickedCell?.content() !== 0) {
-      const cellsAround = this.selectCellsAround(
-        clickedCell.posX(),
-        clickedCell.posY()
-      );
+      const cellsAround = this.selectCellsAround(clickedCell.coords);
 
       const flagsAround = cellsAround.reduce(
         (count, cell) => count + (cell!.flagged ? 1 : 0),
@@ -84,7 +78,9 @@ export class FieldComponent {
       if (flagsAround === clickedCell.content()) {
         cellsAround
           .filter(cell => !cell.flagged)
-          .forEach(cell => this.revealCellsAround(cell.posX(), cell.posY()));
+          .forEach(cell =>
+            this.revealCellsAround(cell.coords)
+          );
       }
     }
   }
@@ -95,16 +91,24 @@ export class FieldComponent {
 
     if (this.gameStateService.flagsRemain() === 0 && this.allMinesAreFlaged()) {
       this.gameStateService.winGame();
-      this.revealCellsOnWin();
+      this.revealCellsOnWin();      
     }
   }
 
-  setMines(firstClickX: number, firstClickY: number) {
+  setMines(firstClickCoords: CellCoordinates) {
     let i: number = 0;
 
     while (i < this.minesAmount()) {
-      const x = this.generateRandomNumberExcluding(0, this.size(), firstClickX);
-      const y = this.generateRandomNumberExcluding(0, this.size(), firstClickY);
+      const x = this.generateRandomNumberExcluding(
+        0,
+        this.size(),
+        firstClickCoords.posX
+      );
+      const y = this.generateRandomNumberExcluding(
+        0,
+        this.size(),
+        firstClickCoords.posY
+      );
       if (this.mines[x][y] === 1) continue;
       this.mines[x][y] = 1;
       i++;
@@ -114,7 +118,7 @@ export class FieldComponent {
   setNumbersAroundMines() {
     for (let i = 0; i < this.size(); i++) {
       for (let j = 0; j < this.size(); j++) {
-        this.numbersAroundMines[i][j] = this.calculateMinesAround(i, j);
+        this.numbersAroundMines[i][j] = this.calculateMinesAround({posX: i, posY: j});
       }
     }
 
@@ -127,23 +131,29 @@ export class FieldComponent {
     }
   }
 
-  calculateMinesAround(x: number, y: number): number {
-    if (this.outOfBounds(x, y)) return 0;
+  calculateMinesAround(coords: CellCoordinates): number {
+    if (this.outOfBounds(coords)) return 0;
 
     let i: number = 0;
 
     for (let offsetX = -1; offsetX <= 1; offsetX++) {
       for (let offsetY = -1; offsetY <= 1; offsetY++) {
-        if (this.outOfBounds(offsetX + x, offsetY + y)) continue;
-        i += this.mines[offsetX + x][offsetY + y];
+        if (this.outOfBounds({ posX: offsetX + coords.posX, posY: offsetY + coords.posY }))
+          continue;
+        i += this.mines[offsetX + coords.posX][offsetY + coords.posY];
       }
     }
 
     return i;
   }
 
-  outOfBounds(x: number, y: number): boolean {
-    return x < 0 || y < 0 || x >= this.size() || y >= this.size();
+  outOfBounds(coords: CellCoordinates): boolean {
+    return (
+      coords.posX < 0 ||
+      coords.posY < 0 ||
+      coords.posX >= this.size() ||
+      coords.posY >= this.size()
+    );
   }
 
   firstClick() {
@@ -152,34 +162,37 @@ export class FieldComponent {
     );
   }
 
-  revealCellsAround(x: number, y: number) {
-    const cell = this.getCellByPosition(x, y);
+  revealCellsAround(coords: CellCoordinates) {
+    const cell = this.getCellByPosition({
+      posX: coords.posX,
+      posY: coords.posY,
+    });
 
     if (cell?.content() === -1) {
       this.revealBombs();
       return;
     }
 
-    if (this.outOfBounds(x, y)) return;
+    if (this.outOfBounds({ posX: coords.posX, posY: coords.posY })) return;
 
-    if (this.revealedCells[x][y]) return;
+    if (this.revealedCells[coords.posX][coords.posY]) return;
 
     if (cell?.flagged) return;
 
-    this.revealedCells[x][y] = true;
+    this.revealedCells[coords.posX][coords.posY] = true;
 
     cell?.revealSelf();
 
-    if (this.calculateMinesAround(x, y) !== 0) return;
+    if (this.calculateMinesAround(coords) !== 0) return;
 
-    this.revealCellsAround(x - 1, y - 1);
-    this.revealCellsAround(x - 1, y + 1);
-    this.revealCellsAround(x + 1, y - 1);
-    this.revealCellsAround(x + 1, y + 1);
-    this.revealCellsAround(x - 1, y);
-    this.revealCellsAround(x + 1, y);
-    this.revealCellsAround(x, y + 1);
-    this.revealCellsAround(x, y - 1);
+    this.revealCellsAround({ posX: coords.posX - 1, posY: coords.posY - 1 });
+    this.revealCellsAround({ posX: coords.posX - 1, posY: coords.posY + 1 });
+    this.revealCellsAround({ posX: coords.posX + 1, posY: coords.posY - 1 });
+    this.revealCellsAround({ posX: coords.posX + 1, posY: coords.posY + 1 });
+    this.revealCellsAround({ posX: coords.posX - 1, posY: coords.posY });
+    this.revealCellsAround({ posX: coords.posX + 1, posY: coords.posY });
+    this.revealCellsAround({ posX: coords.posX, posY: coords.posY + 1 });
+    this.revealCellsAround({ posX: coords.posX, posY: coords.posY - 1 });
   }
 
   revealBombs() {
@@ -229,24 +242,25 @@ export class FieldComponent {
     return true;
   }
 
-  selectCellsAround(x: number, y: number) {
+  selectCellsAround(coords: CellCoordinates) {
     const cells = [
-      this.getCellByPosition(x - 1, y - 1),
-      this.getCellByPosition(x - 1, y + 1),
-      this.getCellByPosition(x + 1, y - 1),
-      this.getCellByPosition(x + 1, y + 1),
-      this.getCellByPosition(x - 1, y),
-      this.getCellByPosition(x + 1, y),
-      this.getCellByPosition(x, y + 1),
-      this.getCellByPosition(x, y - 1),
+      this.getCellByPosition({ posX: coords.posX - 1, posY: coords.posY - 1 }),
+      this.getCellByPosition({ posX: coords.posX - 1, posY: coords.posY + 1 }),
+      this.getCellByPosition({ posX: coords.posX + 1, posY: coords.posY - 1 }),
+      this.getCellByPosition({ posX: coords.posX + 1, posY: coords.posY + 1 }),
+      this.getCellByPosition({ posX: coords.posX - 1, posY: coords.posY }),
+      this.getCellByPosition({ posX: coords.posX + 1, posY: coords.posY }),
+      this.getCellByPosition({ posX: coords.posX, posY: coords.posY + 1 }),
+      this.getCellByPosition({ posX: coords.posX, posY: coords.posY - 1 }),
     ].filter((cell): cell is CellComponent => cell !== undefined);
 
     return cells;
   }
 
-  getCellByPosition(x: number, y: number) {
-    if (this.outOfBounds(x, y)) return undefined;
+  getCellByPosition(coords: CellCoordinates) {
+    if (this.outOfBounds({ posX: coords.posX, posY: coords.posY }))
+      return undefined;
 
-    return this.cells?.get(x * this.size() + y);
+    return this.cells?.get(coords.posX * this.size() + coords.posY);
   }
 }

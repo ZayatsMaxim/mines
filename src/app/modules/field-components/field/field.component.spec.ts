@@ -155,28 +155,83 @@ describe('FieldComponent', () => {
   });
 
   it('should return false on allMinesAreFlagged() if no cell was flagged', () => {
-    const cellCoordinates: CellCoordinates = { posX: 1, posY: 1 };
-    fixture.detectChanges();
-    component.cellReveal(cellCoordinates);
+    doFirstClick();
 
     expect(component.allMinesAreFlaged()).toBeFalse();
   });
 
   it('should return true on allMinesAreFlagged() if all mines were flagged', () => {
-    const cellCoordinates: CellCoordinates = { posX: 1, posY: 1 };
-    fixture.detectChanges();
-    component.cellReveal(cellCoordinates);
-    fixture.detectChanges();
+    doFirstClick();
 
     component.cells
       .filter(cell => cell.content() === -1)
       .forEach(cell => {
         cell.flagged = true;
+        gameStateService.cellsFlaged.update(value => value + 1);
         component.cellFlaging({ posX: cell.posX(), posY: cell.posY() });
       });
 
     fixture.detectChanges();
     expect(component.allMinesAreFlaged()).toBeTrue();
   });
-  // it('',() => {})
+
+  it('should win game on cellFlaging() if cell was last remained mine', () => {
+    doFirstClick();
+
+    component.cells
+      .filter(cell => cell.content() === -1)
+      .forEach(cell => {
+        cell.flagged = true;
+        gameStateService.cellsFlaged.update(value => value + 1);
+        component.cellFlaging(cell.coords);
+      });
+
+    fixture.detectChanges();
+
+    expect(gameStateService.gameState()).toBe(GameState.Win);
+  });
+
+  it('should revealBombs() on revealCellsAround() if near cell content is a mine (-1)', () => {
+    doFirstClick();
+    spyOn(component, 'revealBombs');
+
+    component.cells.forEach(cell => {
+      component.revealCellsAround(cell.coords);
+    });
+
+    expect(component.revealBombs).toHaveBeenCalled();
+  });
+
+  it('should return void on revealCellsAround() is cell is flagged', () => {
+    doFirstClick();
+    const cellCoordinates: CellCoordinates = { posX: 2, posY: 2 };
+    const cell = component.getCellByPosition(cellCoordinates);
+
+    cell!.flagged = true;
+    const result = component.revealCellsAround(cellCoordinates);
+
+    expect(result).toBe(void 0);
+  });
+
+  it('should return 8 cells on selectCellsAround() if passed a coords of cell in the middle of the field', () => {
+    doFirstClick();
+    const cellCoordinates: CellCoordinates = { posX: 2, posY: 2 };
+
+    const selectedCells = component.selectCellsAround(cellCoordinates);
+
+    expect(selectedCells.length).toEqual(8);
+  });
+
+  it('should return 0 on calculateMinesAround() if cell coords is out of bounds', () => {
+    const cellCoordinates: CellCoordinates = { posX: 999, posY: 999 };
+
+    expect(component.calculateMinesAround(cellCoordinates)).toEqual(0);
+  });
+
+  function doFirstClick() {
+    const cellCoordinates: CellCoordinates = { posX: 0, posY: 0 };
+    fixture.detectChanges();
+    component.cellReveal(cellCoordinates);
+    fixture.detectChanges();
+  }
 });

@@ -19,6 +19,10 @@ export class CellComponent {
   posX = input.required<number>();
   posY = input.required<number>();
 
+  get coords(): CellCoordinates {
+    return { posX: this.posX(), posY: this.posY() };
+  }
+
   cellReveal = output<CellCoordinates>();
   cellFlaging = output<CellCoordinates>();
 

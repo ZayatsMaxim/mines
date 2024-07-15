@@ -24,14 +24,17 @@
 
   margin-top: 10px;
   display: flex;
+  flex-wrap: wrap;
   flex-flow: column;
   align-items: center;
 
   .inputs {
     display: flex;
     flex-flow: row;
+    flex-wrap: wrap;
     gap: 20px;
     align-items: center;
+    justify-content: center;
   }
 
   ::ng-deep .input-small input {
@@ -44,13 +47,6 @@
   flex-flow: row;
   justify-content: center;
   gap: 10px;
-}
-
-.field {
-  margin-top: 30px;
-  display: flex;
-  flex-flow: column;
-  align-items: center;
 }
 
 .timer {

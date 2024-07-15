@@ -1,10 +1,21 @@
 :host {
-  display: block;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .field {
   display: flex;
-  flex-flow: row;
+  flex-flow: column;
   flex-wrap: wrap;
-  gap: 2px;
+  gap: 3px;
+  margin-top: 20px;
+  overflow-x: scroll;
+  overflow: overlay;
+  
+  .row {
+    gap: 3px;
+    display: flex;
+    flex-flow: row;
+  }
 }

@@ -1,13 +1,15 @@
-<div class="field" [style.width.px]="fieldWidth()">
-  @for (i of numbersAroundMines; track ix; let ix = $index) {
-    @for (j of i; track jx; let jx = $index) {
-      <app-cell
-        [content]="this.numbersAroundMines[ix][jx]"
-        [posX]="ix"
-        [posY]="jx"
-        (cellReveal)="cellReveal($event)"
-        (cellFlaging)="cellFlaging($event)">
-      </app-cell>
-    }
+<div class="field">
+  @for (i of numbersAroundMines; track $index; let ix = $index) {
+    <div class="row">
+      @for (j of i; track jx; let jx = $index) {
+        <app-cell
+          [content]="this.numbersAroundMines[ix][jx]"
+          [posX]="ix"
+          [posY]="jx"
+          (cellReveal)="cellReveal($event)"
+          (cellFlaging)="cellFlaging($event)">
+        </app-cell>
+      }
+    </div>
   }
 </div>
